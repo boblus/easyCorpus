@@ -82,7 +82,7 @@ print(tags)
 |----|----|----|
 |**parameters:**|**corpus:**|*dict*|
 | | |the corpus to be analyzed|
-| |**lan:**|*{'zh'}*|
+| |**lan:**|*{'zh', 'en'}*|
 | | |language of the text in the corpus|
 |**return:**|**result**|*pandas.DataFrame*|
 
