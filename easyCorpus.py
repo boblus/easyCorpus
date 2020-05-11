@@ -1,4 +1,4 @@
-# easyCorpus 1.1
+# easyCorpus 1.2
 
 import os
 import re
@@ -21,6 +21,13 @@ def corporize(direction):
         text = file.read()
         corpus[filename] = text
     return corpus
+
+def preprocess(corpus, subee, suber):
+    output = {}
+    for filename in corpus:
+        text = corpus[filename].replace(subee, suber)
+        output[text] = text
+    return output
 
 def tag(text, lan):
     combi, words, tags = [], [], []
