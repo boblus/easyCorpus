@@ -1,4 +1,4 @@
-# easyCorpus 1.0
+# easyCorpus 1.1
 
 import os
 import re
@@ -25,7 +25,7 @@ def corporize(direction):
 def tag(text, lan):
     combi, words, tags = [], [], []
     if lan not in ['zh', 'en']:
-        raise ValueError('Language not supported.')
+        raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if lan == 'zh':
         jieba.setLogLevel(logging.INFO)
         pos = pseg.cut(text)
@@ -46,11 +46,11 @@ def mean_word_length(combi, lan):
     cnt = 0
     length = 0
     if lan not in ['zh', 'en']:
-        raise ValueError('Language not supported.')
+        raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if lan == 'zh':
         for pair in combi:
             pos_tag = pair.split('/')[1]
-            if pos_tag != 'x' and pos_tag != 'w':
+            if pos_tag not in ['x', 'w']:
                 cnt = cnt + 1
                 length = length + len(pair.split('/')[0])
     if lan == 'en':
@@ -61,10 +61,11 @@ def mean_word_length(combi, lan):
                 length = length + len(pair.split('/')[0])
     return length/cnt
 
-def mean_sent_length(sentences):
+def mean_sent_length(sentences, lan):
     length = 0
     for sent in sentences:
-        length = length + len(sent)
+        combi, words, tags = tag(sent, lan)
+        length = length + len(words)
     return length/len(sentences)
 
 def punct_count(text, lan):
@@ -85,8 +86,8 @@ def punct_count(text, lan):
         comma = count_words[',']
         semi = count_words[';']
         punct = (count_tags[""''""] + count_tags['('] + count_tags[')']
-                 + count_tags[','] + count_tags['.'] + count_tags[':']
-                 + count_tags['``'])
+                 + count_tags[','] + count_tags['--'] + count_tags['.']
+                 + count_tags[':'] + count_tags['``'])
     return period, question, exclam, comma, semi, punct
 
 def lex_count(corpus, lan):
@@ -141,7 +142,7 @@ def sent_count(corpus, lan):
         sentences = sent_segment(corpus[filename], lan)
         period, question, exclam, comma, semi, punct = punct_count(corpus[filename], lan)
         output.append([filename, len(sentences), period/len(sentences), question/len(sentences),
-                       exclam/len(sentences), mean_sent_length(sentences), punct, period/punct,
+                       exclam/len(sentences), mean_sent_length(sentences, lan), punct, period/punct,
                        question/punct, exclam/punct, comma/punct, semi/punct])
     return pd.DataFrame(output, columns=['docname', 'sentences', 'statement', 'interrogative',
                                          'exclamatory', 'MSL', 'punctuation', 'period',
@@ -149,7 +150,7 @@ def sent_count(corpus, lan):
 
 def sent_segment(text, lan):
     if lan not in ['zh', 'en']:
-        raise ValueError('Language not supported.')
+        raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if lan == 'zh':
         text = re.sub('([。！？\...... \?])([^”’。！？\......])', r'\1\n\2', text)
         text = re.sub('([。！？\...... \?])([”’])', r'\1\2\n', text)
@@ -190,7 +191,7 @@ def post(tokenized_text, indice, window):
 
 def kwic(corpus, keyword, lan, window=4, mode=None, pos=False):
     if lan not in ['zh', 'en']:
-        raise ValueError('Language not supported.')
+        raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if mode not in ['re', None]:
         raise ValueError('\'mode\' can only be set as \'re\' or None.')
     if lan == 'zh':
