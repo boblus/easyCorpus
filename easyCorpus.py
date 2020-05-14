@@ -1,12 +1,15 @@
-# easyCorpus 1.2
+# easyCorpus 1.3
 
 import os
 import re
 import nltk
 import jieba
 import logging
+import matplotlib
+import numpy as np
 import pandas as pd
 import jieba.posseg as pseg
+import matplotlib.pyplot as plt
 from collections import Counter
 
 def corporize(direction):
@@ -26,7 +29,7 @@ def preprocess(corpus, subee, suber):
     output = {}
     for filename in corpus:
         text = corpus[filename].replace(subee, suber)
-        output[text] = text
+        output[filename] = text
     return output
 
 def tag(text, lan):
@@ -244,3 +247,53 @@ def kwic(corpus, keyword, lan, window=4, mode=None, pos=False):
     if output == []:
         print('Input not found.')
     return pd.DataFrame(output, columns=['docname', 'from', 'to', 'pre', 'keyword', 'post'])
+
+def word_distribution(words, keyword, tile):
+    if tile not in [1,2,5,10]:
+        raise ValueError('The value of tile should be in [1, 2, 5, 10].')
+    start= 0
+    tiles, times = [], []
+    for i in range(0, 10, int(10/tile)):
+        end = int(len(words) * (i+10/tile) / 10 + 0.5)
+        word_count = Counter(words[start:end])
+        tiles.append(str(10*(i+int(10/tile)))+'%')
+        times.append(word_count[keyword])
+        start = end
+    return tiles, times
+
+def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
+    
+    plt.rcParams['figure.figsize'] = (fig_width, fig_height)
+    
+    if lan == 'zh':
+        plt.rcParams['font.sans-serif']=['SimHei']
+        y_label = '词频'
+        title = '\'%s\'的分布' % keyword
+    if lan == 'en':
+        plt.rcParams['font.sans-serif']=['DejaVu Sans']
+        y_label = 'Word frequency'
+        title = 'The distribution of \'%s\'' % keyword
+
+    cnt = 0
+    temp = locals()
+
+    x = np.arange(tile)
+    fig, ax = plt.subplots()
+    for filename in corpus:
+        freq = word_distribution(tag(corpus[filename], lan)[1], keyword, tile)
+        temp['rects%s' % cnt] = ax.bar(x-0.85+(cnt+0.5)*0.7/len(corpus), freq[1], width=0.7/len(corpus), label=filename)
+        for rect in temp['rects%s' % cnt]:
+            height = rect.get_height()
+            ax.annotate('{}'.format(height), xy=(rect.get_x() + rect.get_width() / 2, height),
+                        xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
+        cnt = cnt + 1
+
+    ax.set_ylabel(y_label, fontsize=14)
+    ax.set_title(title, fontsize=14)
+    ax.set_xticks(x)
+    ax.set_xticklabels(freq[0], fontsize=14)
+    ax.legend(fontsize=14)
+
+    plt.savefig('word frequency.png')
+    plt.show()
+    
