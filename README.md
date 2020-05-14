@@ -7,9 +7,11 @@
 --os  
 --re  
 --nltk  
---jieba  
+--jieba
+--numpy
 --pandas  
---logging  
+--logging
+--matplotlib
 --collections  
 
 # main functions
