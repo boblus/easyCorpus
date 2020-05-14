@@ -187,3 +187,33 @@ kwic(corpus, '[\u4e00-\u9fa5]*工', window=2, lan='zh', mode='re', pos=True)[:5]
 |1954政府工作报告_周恩来.txt|2867|2867|了/ul 一般/a|技工/n|的/uj 培养/v|
 |1954政府工作报告_周恩来.txt|2878|2878|人才/n 和/c|高级技工/n|的/uj 培养/v|
 
+**6. word distribution plot**
+
+* `word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height)`
+
+|  |  |  |
+|----|----|----|
+|**parameters:**|**corpus:**|*dict*|
+| | |the corpus to be analyzed|
+| |**keyword:**|*str*|
+| | |the word to be searched for|
+| |**lan:**|*{'zh', 'en'}*|
+| | |language of the text in the corpus|
+| |**tile:**|*{1, 2, 5, 10}*|
+| | |the number of tiles to be displayed |
+| |**fig_width:**|*int*|
+| | |the width of the output figure|
+| |**fig_height:**|*int*|
+| | |the height of the output figure|
+|**return:**|**figure**|*module*|
+
+*Example:*
+```python
+from easyCorpus import word_distribution, word_distribution_plot
+
+corpus = corporize('二马/')
+word_distribution_plot(corpus, 'en', 'China', tile=5, fig_width=16, fig_height=8)
+```
+*Output:*
+![word frequency.png](https://i.loli.net/2020/05/14/UtCAmhDayZxqodw.png)
+
