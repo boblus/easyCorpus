@@ -261,10 +261,8 @@ def word_distribution(words, keyword, tile):
         start = end
     return tiles, times
 
-def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
-    
-    plt.rcParams['figure.figsize'] = (fig_width, fig_height)
-    
+def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):    
+    plt.rcParams['figure.figsize'] = (fig_width, fig_height)    
     if lan == 'zh':
         plt.rcParams['font.sans-serif']=['SimHei']
         y_label = '词频'
@@ -273,10 +271,8 @@ def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
         plt.rcParams['font.sans-serif']=['DejaVu Sans']
         y_label = 'Word frequency'
         title = 'The distribution of \'%s\'' % keyword
-
     cnt = 0
     temp = locals()
-
     x = np.arange(tile)
     fig, ax = plt.subplots()
     for filename in corpus:
@@ -287,13 +283,11 @@ def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
             ax.annotate('{}'.format(height), xy=(rect.get_x() + rect.get_width() / 2, height),
                         xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
         cnt = cnt + 1
-
     ax.set_ylabel(y_label, fontsize=14)
     ax.set_title(title, fontsize=14)
     ax.set_xticks(x)
     ax.set_xticklabels(freq[0], fontsize=14)
     ax.legend(fontsize=14)
-
     plt.savefig('word frequency.png')
     plt.show()
     
