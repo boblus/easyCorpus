@@ -261,7 +261,10 @@ def word_distribution(words, keyword, tile):
         start = end
     return tiles, times
 
-def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):    
+def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
+
+    plt.rcParams['figure.figsize']=[fig_width, fig_height]
+    
     if lan == 'zh':
         plt.rcParams['font.sans-serif']=['SimHei']
         y_label = '词频'
@@ -289,7 +292,6 @@ def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
     ax.set_xticklabels(freq[0], fontsize=14)
     ax.legend(fontsize=14)
     
-    plt.figure(figsize=(fig_width, fig_height))
     plt.savefig('word frequency.png')
     plt.show()
     
