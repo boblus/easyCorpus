@@ -95,7 +95,7 @@ from easyCorpus import lex_count
 lex_count(corpus, lan='zh')
 ```
 *Output:*
-|docname|tokens|types|TTR|words|MWL|content|function|noun|pronoun|verb|adjective|adverb|conjunction|auxiliary|
+|docname|tokens|types|TTR (type-token ratio)|words|MWL (mean word length)|content|function|noun|pronoun|verb|adjective|adverb|conjunction|auxiliary|
 |--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|
 |2016.txt|26|21|0.807692|20|1.550000|0.900000|0.100000|0.250000|0.000000|0.050000|0.000000|0.10|0.0|0.100000
 |2017.txt|27|22|0.814815|20|1.700000|1.000000|0.000000|0.350000|0.050000|0.200000|0.000000|0.05|0.0|0.000000
@@ -122,7 +122,7 @@ from easyCorpus import sent_count
 sent_count(corpus, lan='zh')
 ```
 *Output:*
-|docname|sentences|statement|interrogative|exclamatory|MSL|punctuation|period|question|exclamation|comma|semicolon|
+|docname|sentences|statement|interrogative|exclamatory|MSL (mean sentence length)|punctuation|period|question|exclamation|comma|semicolon|
 |--|--|--|--|--|--|--|--|--|--|--|--|
 |2016.txt|2|1.000000|0.000000|0.0|13.000000|6|0.333333|0.000000|0.000000|0.666667|0.0|
 |2017.txt|4|0.250000|0.250000|0.5|6.750000|7|0.142857|0.142857|0.285714|0.428571|0.0|
