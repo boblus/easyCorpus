@@ -95,13 +95,16 @@ from easyCorpus import lex_count
 lex_count(corpus, lan='zh')
 ```
 *Output:*
-|docname|tokens|types|TTR (type-token ratio)|words|MWL (mean word length)|content|function|noun|pronoun|verb|adjective|adverb|conjunction|auxiliary|
+|docname|tokens|types|TTR|words|MWL|content|function|noun|pronoun|verb|adjective|adverb|conjunction|auxiliary|
 |--|--|--|--|--|--|--|--|--|--|--|--|--|--|--|
 |2016.txt|26|21|0.807692|20|1.550000|0.900000|0.100000|0.250000|0.000000|0.050000|0.000000|0.10|0.0|0.100000
 |2017.txt|27|22|0.814815|20|1.700000|1.000000|0.000000|0.350000|0.050000|0.200000|0.000000|0.05|0.0|0.000000
 |2018.txt|26|22|0.846154|20|1.700000|0.900000|0.100000|0.300000|0.050000|0.150000|0.000000|0.05|0.0|0.100000
 |2019.txt|33|27|0.818182|25|1.560000|0.920000|0.080000|0.480000|0.000000|0.120000|0.000000|0.00|0.0|0.040000
 |2020.txt|24|21|0.875000|19|1.631579|0.947368|0.052632|0.315789|0.052632|0.105263|0.052632|0.00|0.0|0.052632
+
+TTR: type token ratio  
+MWL: mean word length
 
 **4. statistical analysis in sentence level**
 
@@ -122,13 +125,15 @@ from easyCorpus import sent_count
 sent_count(corpus, lan='zh')
 ```
 *Output:*
-|docname|sentences|statement|interrogative|exclamatory|MSL (mean sentence length)|punctuation|period|question|exclamation|comma|semicolon|
+|docname|sentences|statement|interrogative|exclamatory|MSL|punctuation|period|question|exclamation|comma|semicolon|
 |--|--|--|--|--|--|--|--|--|--|--|--|
 |2016.txt|2|1.000000|0.000000|0.0|13.000000|6|0.333333|0.000000|0.000000|0.666667|0.0|
 |2017.txt|4|0.250000|0.250000|0.5|6.750000|7|0.142857|0.142857|0.285714|0.428571|0.0|
 |2018.txt|3|0.666667|0.333333|0.0|8.666667|6|0.333333|0.166667|0.000000|0.500000|0.0|
 |2019.txt|5|0.400000|0.400000|0.2|6.600000|8|0.250000|0.250000|0.125000|0.375000|0.0|
 |2020.txt|2|0.500000|0.500000|0.0|12.000000|5|0.200000|0.200000|0.000000|0.600000|0.0|
+
+MSL: mean sentence length
 
 **5. key word in context**
 
