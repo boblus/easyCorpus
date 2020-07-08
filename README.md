@@ -75,6 +75,7 @@ print(tags)
 
 ['q', 'm', 'm', 'x', 'n', 't', 'x', 'n', 'm', 'n', 'x', 'm', 'nr', 'n', 'm', 'n', 'x', 'a', 'uj', 'm', 'v', 'r', 'v', 'x']
 ```
+For the meaning of the tag, please refer to https://github.com/fxsjy/jieba (zh) and https://www.nltk.org/book/ch05.html (en).
 
 **3. statistical analysis in word level**
 
