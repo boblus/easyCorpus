@@ -225,3 +225,26 @@ word_distribution_plot(corpus, 'en', 'China', tile=5, fig_width=16, fig_height=8
 *Output:*
 ![word frequency.png](https://i.loli.net/2020/05/14/UtCAmhDayZxqodw.png)
 
+**7. highlight contents**
+
+* `highlight(corpus, keyword, color)`
+
+|  |  |  |
+|----|----|----|
+|**parameters:**|**corpus:**|*pandas.DataFrame*|
+| | |the corpus to be searched|
+| |**keyword:**|*str*|
+| | |the word to be searched for|
+| |**color:**|*{'red', 'green', 'yellow', 'purple', 'blue'}*|
+| | |the highlight color|
+|**return:**|**table**|*pandas.Styler*|
+
+*Example:*
+```python
+from easyCorpus import highlight
+
+corpus = pd.read_csv('二马.csv')
+highlight(corpus[:5], '看', 'red')
+```
+*Output:*
+![highlighted contexts.png](https://i.loli.net/2020/07/09/aVONlfp37Lrd8Qw.jpg)
