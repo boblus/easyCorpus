@@ -220,7 +220,7 @@ kwic(corpus, '[\u4e00-\u9fa5]*工', window=2, lan='zh', mode='re', pos=True)[:5]
 from easyCorpus import word_distribution, word_distribution_plot
 
 corpus = corporize('二马/')
-word_distribution_plot(corpus, 'en', 'China', tile=5, fig_width=16, fig_height=8)
+word_distribution_plot(corpus, 'China', 'en', tile=5, fig_width=16, fig_height=8)
 ```
 *Output:*
 ![word frequency.png](https://i.loli.net/2020/05/14/UtCAmhDayZxqodw.png)
