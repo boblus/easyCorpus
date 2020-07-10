@@ -4,10 +4,13 @@
 
 # environment
 --python 3.7  
+--os  
+--re  
 --nltk  
 --jieba  
 --numpy  
---pandas  
+--pandas 
+--logging  
 --matplotlib  
 --collections  
 
