@@ -4,6 +4,7 @@ import os
 import re
 import nltk
 import jieba
+import logging
 import matplotlib
 import numpy as np
 import pandas as pd
@@ -36,6 +37,7 @@ def tag(text, lan):
     if lan not in ['zh', 'en']:
         raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if lan == 'zh':
+        jieba.setLogLevel(logging.INFO)
         pos = pseg.cut(text)
         for word, flag in pos:
             combi.append(word+'/'+flag)
@@ -203,6 +205,7 @@ def kwic(corpus, keyword, lan, window=4, mode=None, pos=False):
     if mode not in ['re', None]:
         raise ValueError('\'mode\' can only be set as \'re\' or None.')
     if lan == 'zh':
+        jieba.setLogLevel(logging.INFO)
         keywords = jieba.lcut(keyword)
     if lan == 'en':
         keywords = keyword.split()
