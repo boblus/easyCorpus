@@ -8,7 +8,6 @@
 --jieba  
 --numpy  
 --pandas  
---logging  
 --matplotlib  
 --collections  
 
