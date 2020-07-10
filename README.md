@@ -9,7 +9,7 @@
 --nltk  
 --jieba  
 --numpy  
---pandas 
+--pandas  
 --logging  
 --matplotlib  
 --collections  
