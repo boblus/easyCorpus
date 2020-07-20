@@ -1,4 +1,3 @@
-# easyCorpus 1.3
 
 import os
 import re
