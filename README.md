@@ -2,17 +2,9 @@
 
 *easyCorpus* is a python module to process corpus data and perform statistical analysis.
 
-# environment
---python 3.7  
---os  
---re  
---nltk  
---jieba  
---numpy  
---pandas  
---logging  
---matplotlib  
---collections  
+# install
+
+`pip install easyCorpus`
 
 # main functions
 
