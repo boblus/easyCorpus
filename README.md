@@ -4,7 +4,9 @@
 
 # install
 
-`pip install easyCorpus`
+```python
+pip install easyCorpus
+```
 
 PyPI: https://pypi.org/project/easyCorpus/
 
