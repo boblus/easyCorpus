@@ -6,6 +6,8 @@
 
 `pip install easyCorpus`
 
+PyPI: https://pypi.org/project/easyCorpus/
+
 # main functions
 
 **1. import corpus data (plain text) from a local environment**
@@ -67,7 +69,7 @@ print(tags)
 
 ['q', 'm', 'm', 'x', 'n', 't', 'x', 'n', 'm', 'n', 'x', 'm', 'nr', 'n', 'm', 'n', 'x', 'a', 'uj', 'm', 'v', 'r', 'v', 'x']
 ```
-For the meaning of the tag, please refer to https://github.com/fxsjy/jieba (zh) and https://www.nltk.org/book/ch05.html (en).
+For the meaning of the tag, please refer to https://github.com/fxsjy/jieba (Chinese) and https://www.nltk.org/book/ch05.html (English).
 
 **3. statistical analysis in word level**
 
