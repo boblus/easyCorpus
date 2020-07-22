@@ -1,5 +1,7 @@
 # easyCorpus
 
+[![](https://img.shields.io/badge/PyPI-2.0-blue)](https://pypi.org/project/easyCorpus/)
+
 *easyCorpus* is a python module to process corpus data and perform statistical analysis.
 
 # install
@@ -7,8 +9,6 @@
 ```python
 pip install easyCorpus
 ```
-
-PyPI: https://pypi.org/project/easyCorpus/
 
 # main functions
 
