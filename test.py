@@ -10,7 +10,7 @@ import jieba.posseg as pseg
 import matplotlib.pyplot as plt
 from collections import Counter
 
-def corporize(direction):
+def test_corporize(direction):
     corpus = {}
     filenames = []
     for filename in os.listdir(direction):
@@ -23,14 +23,14 @@ def corporize(direction):
         corpus[filename] = text
     return corpus
 
-def preprocess(corpus, subee, suber):
+def test_preprocess(corpus, subee, suber):
     output = {}
     for filename in corpus:
         text = corpus[filename].replace(subee, suber)
         output[filename] = text
     return output
 
-def tag(text, lan):
+def test_tag(text, lan):
     combi, words, tags = [], [], []
     if lan not in ['zh', 'en']:
         raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
@@ -50,7 +50,7 @@ def tag(text, lan):
             tags.append(pair[1])
     return combi, words, tags
 
-def mean_word_length(combi, lan):
+def test_mean_word_length(combi, lan):
     cnt = 0
     length = 0
     if lan not in ['zh', 'en']:
@@ -69,14 +69,14 @@ def mean_word_length(combi, lan):
                 length = length + len(pair.split('/')[0])
     return length/cnt
 
-def mean_sent_length(sentences, lan):
+def test_mean_sent_length(sentences, lan):
     length = 0
     for sent in sentences:
         combi, words, tags = tag(sent, lan)
         length = length + len(words)
     return length/len(sentences)
 
-def punct_count(text, lan):
+def test_punct_count(text, lan):
     combi, words, tags = tag(text, lan)
     count_words = Counter(words)
     count_tags = Counter(tags)
@@ -98,7 +98,7 @@ def punct_count(text, lan):
                  + count_tags[':'] + count_tags['``'])
     return period, question, exclam, comma, semi, punct
 
-def lex_count(corpus, lan):
+def test_lex_count(corpus, lan):
     output = []
     if lan == 'zh':
         noun_tags = ['noun', 'n', 'ng', 'nr', 'ns', 'nt', 'nz', 'nrt']
@@ -144,7 +144,7 @@ def lex_count(corpus, lan):
                                          'adjective', 'adverb', 'conjunction',
                                          'auxiliary'])
 
-def sent_count(corpus, lan):
+def test_sent_count(corpus, lan):
     output = []
     for filename in corpus:
         sentences = sent_segment(corpus[filename], lan)
@@ -156,7 +156,7 @@ def sent_count(corpus, lan):
                                          'exclamatory', 'MSL', 'punctuation', 'period',
                                          'question', 'exclamation', 'comma', 'semicolon'])
 
-def sent_segment(text, lan):
+def test_sent_segment(text, lan):
     if lan not in ['zh', 'en']:
         raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if lan == 'zh':
@@ -167,7 +167,7 @@ def sent_segment(text, lan):
         sentences = nltk.sent_tokenize(text)
         return sentences
 
-def pre(tokenized_text, indice, window):
+def test_pre(tokenized_text, indice, window):
     output = []
     for i in indice:
         avant = []
@@ -182,7 +182,7 @@ def pre(tokenized_text, indice, window):
         output.append(avant)
     return output
 
-def post(tokenized_text, indice, window):
+def test_post(tokenized_text, indice, window):
     output = []
     for i in indice:
         apres = []
@@ -197,7 +197,7 @@ def post(tokenized_text, indice, window):
         output.append(apres)
     return output
 
-def kwic(corpus, keyword, lan, window=4, mode=None, pos=False):
+def test_kwic(corpus, keyword, lan, window=4, mode=None, pos=False):
     if lan not in ['zh', 'en']:
         raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if mode not in ['re', None]:
@@ -246,7 +246,7 @@ def kwic(corpus, keyword, lan, window=4, mode=None, pos=False):
         print('Input not found.')
     return pd.DataFrame(output, columns=['docname', 'from', 'to', 'pre', 'keyword', 'post'])
 
-def word_distribution(words, keyword, tile):
+def test_word_distribution(words, keyword, tile):
     if tile not in [1,2,5,10]:
         raise ValueError('The value of tile should be in [1, 2, 5, 10].')
     start= 0
@@ -259,7 +259,7 @@ def word_distribution(words, keyword, tile):
         start = end
     return tiles, times
 
-def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
+def test_word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
     plt.rcParams['figure.figsize']=[fig_width, fig_height]
     if lan == 'zh':
         plt.rcParams['font.sans-serif']=['SimHei']
@@ -289,7 +289,7 @@ def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
     plt.savefig('word frequency.png')
     plt.show()
     
-def highlight(df, keyword, color):
+def test_highlight(df, keyword, color):
     def highlight_val(val):
         chrome = color if keyword in str(val) else 'black'
         return 'color: %s' % chrome
