@@ -33,7 +33,7 @@ def preprocess(corpus, subee, suber):
     return output
 
 def tag(text, lan):
-    combi, words, tags = [], [], []
+    combi, tokens, tags = [], [], []
     if lan not in ['zh', 'en']:
         raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if lan == 'zh':
@@ -41,16 +41,16 @@ def tag(text, lan):
         pos = pseg.cut(text)
         for word, flag in pos:
             combi.append(word+'/'+flag)
-            words.append(word)
+            tokens.append(word)
             tags.append(flag)
     if lan == 'en':
         tokenized_text = nltk.word_tokenize(text)
         pos = nltk.pos_tag(tokenized_text)
         for pair in pos:
             combi.append(pair[0]+'/'+pair[1])
-            words.append(pair[0])
+            tokens.append(pair[0])
             tags.append(pair[1])
-    return combi, words, tags
+    return combi, tokens, tags
 
 def mean_word_length(combi, lan):
     cnt = 0
@@ -74,31 +74,31 @@ def mean_word_length(combi, lan):
 def mean_sent_length(sentences, lan):
     length = 0
     for sent in sentences:
-        combi, words, tags = tag(sent, lan)
-        length = length + len(words)
+        combi, tokens, tags = tag(sent, lan)
+        length = length + len(tokens)
     return length/len(sentences)
 
 def punct_count(text, lan):
-    combi, words, tags = tag(text, lan)
-    count_words = Counter(words)
+    combi, tokens, tags = tag(text, lan)
+    count_tokens = Counter(tokens)
     count_tags = Counter(tags)
     if lan == 'zh':
-        period = count_words['。']
-        question = count_words['？']
-        exclam = count_words['！']
-        comma = count_words['，']
-        semi = count_words['；']
-        punct = count_tags['x'] + count_tags['w']
+        period = count_tokens['。']
+        question = count_tokens['？']
+        exclam = count_tokens['！']
+        comma = count_tokens['，']
+        semi = count_tokens['；']
+        total_punct = count_tags['x'] + count_tags['w']
     if lan == 'en':
-        period = count_words['.']
-        question = count_words['?']
-        exclam = count_words['!']
-        comma = count_words[',']
-        semi = count_words[';']
-        punct = (count_tags[""''""] + count_tags['('] + count_tags[')']
-                 + count_tags[','] + count_tags['--'] + count_tags['.']
-                 + count_tags[':'] + count_tags['``'])
-    return period, question, exclam, comma, semi, punct
+        period = count_tokens['.']
+        question = count_tokens['?']
+        exclam = count_tokens['!']
+        comma = count_tokens[',']
+        semi = count_tokens[';']
+        total_punct = (count_tags[""''""] + count_tags['('] + count_tags[')']
+                       + count_tags[','] + count_tags['--'] + count_tags['.']
+                       + count_tags[':'] + count_tags['``'])
+    return period, question, exclam, comma, semi, total_punct
 
 def lex_count(corpus, lan):
     output = []
@@ -125,7 +125,7 @@ def lex_count(corpus, lan):
         content_tags = ['content'] + noun_tags + verb_tags + adjective_tags + adverb_tags + pronoun_tags + ['CD', 'UH']
         function_tags = ['function'] + conjunction_tags + auxiliary_tags + ['DT', 'EX', 'IN', 'PDT', 'RP', 'TO', 'WDT']
     for filename in corpus:
-        combi, words, tags = tag(corpus[filename], lan)
+        combi, tokens, tags = tag(corpus[filename], lan)
         count = Counter(tags)
         data = {}
         for labels in [noun_tags, pronoun_tags, verb_tags, adjective_tags, adverb_tags,
@@ -133,9 +133,9 @@ def lex_count(corpus, lan):
             data.setdefault(labels[0], 0)
             for item in labels[1:]:
                 data[labels[0]] += count[item]
-        period, question, exclam, comma, semi, punct = punct_count(corpus[filename], lan)
-        word_count = len(tags) - punct
-        output.append([filename, len(words), len(set(words)), len(set(words))/len(words), word_count,
+        period, question, exclam, comma, semi, total_punct = punct_count(corpus[filename], lan)
+        word_count = len(tags) - total_punct
+        output.append([filename, len(tokens), len(set(tokens)), len(set(tokens))/len(tokens), word_count,
                        mean_word_length(combi, lan), data['content']/word_count, data['function']/word_count,
                        data['noun']/word_count, data['pronoun']/word_count, data['verb']/word_count,
                        data['adjective']/word_count, data['adverb']/word_count, data['conjunction']/word_count,
@@ -158,12 +158,45 @@ def sent_count(corpus, lan):
                                          'exclamatory', 'MSL', 'punctuation', 'period',
                                          'question', 'exclamation', 'comma', 'semicolon'])
 
+def seg_count(corpus, lan, start, end):
+    if lan != 'zh':
+        raise ValueError('Language not supported. This function supports Chinese (\'zh\').')
+    else:
+        temp = []
+        record = {}
+        for i in range(start, end):
+            temp.append(i)
+        for filename in corpus:
+            for i in temp:
+                record.setdefault(filename, {})
+                record[filename].setdefault(i, 0)
+            text = re.sub('([，；：。！？)])([^”’。！？])', r'\1\n\2', corpus[filename])
+            text = re.sub('([^”’])([，；：。！？])([”’])', r'\1\2\3\n', text)
+            text = re.sub('([”’])([，；：。！？])([”’])', r'\1\2\n\3', text)
+            for item in text.split('\n'):
+                combi, tokens, tags = tag(item, lan)
+                period, question, exclam, comma, semi, total_punct = punct_count(item, lan)
+                word_count = len(tokens) - total_punct
+                try:
+                    record[filename][word_count] += 1
+                except Exception as e:
+                    None
+        output = pd.DataFrame()
+        output['length'] = temp
+        for filename in record:
+            temp = []
+            for item in record[filename]:
+                temp.append(record[filename][item])
+            output[filename] = temp
+        return output
+
 def sent_segment(text, lan):
     if lan not in ['zh', 'en']:
         raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if lan == 'zh':
         text = re.sub('([。！？\...... \?])([^”’。！？\......])', r'\1\n\2', text)
-        text = re.sub('([。！？\...... \?])([”’])', r'\1\2\n', text)
+        text = re.sub('([^”’])([。！？\...... \?])([”’])', r'\1\2\3\n', text)
+        text = re.sub('([”’])([。！？\...... \?])([”’])', r'\1\2\n\3', text)
         return text.split('\n')
     if lan == 'en':
         sentences = nltk.sent_tokenize(text)
@@ -211,25 +244,25 @@ def kwic(corpus, keyword, lan, window=4, mode=None, pos=False):
         keywords = keyword.split()
     output = []
     for filename in corpus:
-        combi, words, tags = tag(corpus[filename], lan)
+        combi, tokens, tags = tag(corpus[filename], lan)
         if mode == 're' or len(keywords) == 1:
-            matches = re.findall(keyword, ' '.join(words))
+            matches = re.findall(keyword, ' '.join(tokens))
             for match in set(matches):
-                indice = [index for (index, value) in enumerate(words) if value == match]
+                indice = [index for (index, value) in enumerate(tokens) if value == match]
                 if pos == True:
                     avant = pre(combi, indice, window)
                     apres = post(combi, indice, window)
                     word = combi
                 else:
-                    avant = pre(words, indice, window)
-                    apres = post(words, indice, window)
-                    word = words
+                    avant = pre(tokens, indice, window)
+                    apres = post(tokens, indice, window)
+                    word = tokens
                 for i in range(len(avant)):
                     output.append([filename, indice[i], indice[i], ' '.join(avant[i]),
                                    word[indice[i]], ' '.join(apres[i])])
         elif len(keywords) > 1:
-            indice = [index for (index, value) in enumerate(words) if value == keywords[-1]]
-            avant_words = pre(words, indice, window+len(keywords)-1)
+            indice = [index for (index, value) in enumerate(tokens) if value == keywords[-1]]
+            avant_words = pre(tokens, indice, window+len(keywords)-1)
             for i in range(len(avant_words)):
                 if ' '.join(avant_words[i][-len(keywords)+1:]) == ' '.join(keywords[:len(keywords)-1]):
                     if pos == True:
@@ -238,8 +271,8 @@ def kwic(corpus, keyword, lan, window=4, mode=None, pos=False):
                         word = combi
                     else:
                         avant = avant_words
-                        apres = post(words, indice, window)
-                        word = words
+                        apres = post(tokens, indice, window)
+                        word = tokens
                     output.append([filename, indice[i]-len(keywords)+1, indice[i],
                                    ' '.join(avant[i][:len(avant[i])-len(keywords)+1]),
                                    ' '.join(word[indice[i]-len(keywords)+1:indice[i]+1]),
@@ -248,21 +281,23 @@ def kwic(corpus, keyword, lan, window=4, mode=None, pos=False):
         print('Input not found.')
     return pd.DataFrame(output, columns=['docname', 'from', 'to', 'pre', 'keyword', 'post'])
 
-def word_distribution(words, keyword, tile):
+def word_distribution(tokens, keyword, tile):
     if tile not in [1,2,5,10]:
         raise ValueError('The value of tile should be in [1, 2, 5, 10].')
     start= 0
     tiles, times = [], []
     for i in range(0, 10, int(10/tile)):
-        end = int(len(words) * (i+10/tile) / 10 + 0.5)
-        word_count = Counter(words[start:end])
+        end = int(len(tokens) * (i+10/tile) / 10 + 0.5)
+        word_count = Counter(tokens[start:end])
         tiles.append(str(10*(i+int(10/tile)))+'%')
         times.append(word_count[keyword])
         start = end
     return tiles, times
 
 def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
-    plt.rcParams['figure.figsize']=[fig_width, fig_height]
+    
+    plt.rcParams['figure.figsize'] = (fig_width, fig_height)
+    
     if lan == 'zh':
         plt.rcParams['font.sans-serif']=['SimHei']
         y_label = '词频'
@@ -271,8 +306,10 @@ def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
         plt.rcParams['font.sans-serif']=['DejaVu Sans']
         y_label = 'Word frequency'
         title = 'The distribution of \'%s\'' % keyword
+
     cnt = 0
     temp = locals()
+
     x = np.arange(tile)
     fig, ax = plt.subplots()
     for filename in corpus:
@@ -282,17 +319,22 @@ def word_distribution_plot(corpus, keyword, lan, tile, fig_width, fig_height):
             height = rect.get_height()
             ax.annotate('{}'.format(height), xy=(rect.get_x() + rect.get_width() / 2, height),
                         xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
-        cnt = cnt + 1        
+        cnt = cnt + 1
+
     ax.set_ylabel(y_label, fontsize=14)
     ax.set_title(title, fontsize=14)
     ax.set_xticks(x)
     ax.set_xticklabels(freq[0], fontsize=14)
     ax.legend(fontsize=14)
+
     plt.savefig('word frequency.png')
     plt.show()
-    
+
 def highlight(df, keyword, color):
+    
     def highlight_val(val):
         chrome = color if keyword in str(val) else 'black'
         return 'color: %s' % chrome
-    return df.style.applymap(highlight_val)
+
+    return df.style.applymap(highlight_val)    
+
