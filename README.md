@@ -55,11 +55,11 @@ corporize('Corpus/')
 ```python
 from easyCorpus import tag
 
-combi, words, tags = tag(corpus['2020.txt'], lan='zh')
+combi, tokens, tags = tag(corpus['2020.txt'], lan='zh')
 
 print(combi)
 
-print(words)
+print(tokens)
 
 print(tags)
 ```
@@ -149,7 +149,7 @@ MSL: mean sentence length
 | |**mode:**|*{'re', None}, default None*|
 | | |choice of searching method (use regular expression or not)|
 | |**pos:**|*bool, default False*|
-| | |if True, show the part of speech tags of words|
+| | |if True, show the part of speech tags of the tokens|
 |**return:**|**result**|*pandas.DataFrame*|
 
 *Example 1: default search*
