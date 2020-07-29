@@ -101,7 +101,7 @@ lex_count(corpus, lan='zh')
 |2020.txt|19|18|0.947368|0|1.631579|0.947368|0.052632|0.315789|0.052632|0.105263|0.052632|0.00|0.0|0.052632
 
 TTR: type token ratio  
-STTR: standardized type token ratio
+STTR: standardized type token ratio  
 MWL: mean word length
 
 **4. statistical analysis in sentence level**
