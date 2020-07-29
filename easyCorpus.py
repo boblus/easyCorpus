@@ -52,17 +52,33 @@ def tag(text, lan):
             tags.append(pair[1])
     return combi, tokens, tags
 
-def mean_word_length(combi, lan):
+def STTR(words):
+    chunk = []
+    start = 0
+    for end in range(1000, len(words), 1000):
+        chunk.append((start, end))
+        start = start + 1000
+    chunk.append((start, len(words)))
+    TTRs = []
+    for pair in chunk:
+        if pair[1] - pair[0] != 1000:
+            TTRs.append(0)
+        else:
+            TTRs.append(len(set(words[pair[0]:pair[1]]))/len(words[pair[0]:pair[1]]))
+    return np.mean(TTRs)
+
+def mean_word_length(text, lan):
     cnt = 0
     length = 0
+    combi, tokens, tags = tag(text, lan)
     if lan not in ['zh', 'en']:
         raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if lan == 'zh':
-        for pair in combi:
-            pos_tag = pair.split('/')[1]
-            if pos_tag not in ['x', 'w']:
+        for token in tokens:
+            if token not in ['。', '？', '！', '，', '；', '：', '“', '”', '‘', '’', '（', '）',
+                             '「', '」', '【', '】', '《', '》', '、', '/', '\\', '-', '——', '……']:
                 cnt = cnt + 1
-                length = length + len(pair.split('/')[0])
+                length = length + len(token)
     if lan == 'en':
         for pair in combi:
             pos_tag = pair.split('/')[1]
@@ -78,30 +94,10 @@ def mean_sent_length(sentences, lan):
         length = length + len(tokens)
     return length/len(sentences)
 
-def punct_count(text, lan):
+def word_count(text, lan):
+    output = {}
     combi, tokens, tags = tag(text, lan)
-    count_tokens = Counter(tokens)
-    count_tags = Counter(tags)
-    if lan == 'zh':
-        period = count_tokens['。']
-        question = count_tokens['？']
-        exclam = count_tokens['！']
-        comma = count_tokens['，']
-        semi = count_tokens['；']
-        total_punct = count_tags['x'] + count_tags['w']
-    if lan == 'en':
-        period = count_tokens['.']
-        question = count_tokens['?']
-        exclam = count_tokens['!']
-        comma = count_tokens[',']
-        semi = count_tokens[';']
-        total_punct = (count_tags[""''""] + count_tags['('] + count_tags[')']
-                       + count_tags[','] + count_tags['--'] + count_tags['.']
-                       + count_tags[':'] + count_tags['``'])
-    return period, question, exclam, comma, semi, total_punct
-
-def lex_count(corpus, lan):
-    output = []
+    count = Counter(tags)
     if lan == 'zh':
         noun_tags = ['noun', 'n', 'ng', 'nr', 'ns', 'nt', 'nz', 'nrt']
         pronoun_tags = ['pronoun', 'r']
@@ -124,23 +120,59 @@ def lex_count(corpus, lan):
         auxiliary_tags = ['auxiliary', 'MD']
         content_tags = ['content'] + noun_tags + verb_tags + adjective_tags + adverb_tags + pronoun_tags + ['CD', 'UH']
         function_tags = ['function'] + conjunction_tags + auxiliary_tags + ['DT', 'EX', 'IN', 'PDT', 'RP', 'TO', 'WDT']
+    for labels in [noun_tags, pronoun_tags, verb_tags, adjective_tags, adverb_tags,
+                   conjunction_tags, auxiliary_tags, content_tags, function_tags]:
+        for item in labels[1:]:
+            output[labels[0]] = output.get(labels[0], 0) + count[item]
+    words = []
+    for item in combi:
+         if item.split('/')[1] in content_tags + function_tags:
+                words.append(item.split('/')[0])        
+    output['words'] = words
+    return output
+
+def punct_count(text, lan):
+    combi, tokens, tags = tag(text, lan)
+    count_tokens = Counter(tokens)
+    count_tags = Counter(tags)
+    if lan == 'zh':
+        period = count_tokens['。']
+        question = count_tokens['？']
+        exclam = count_tokens['！']
+        comma = count_tokens['，']
+        semi = count_tokens['；']
+        total_punct = period + question + exclam + comma + semi
+        + count_tokens['：'] + count_tokens['“'] + count_tokens['”']
+        + count_tokens['‘'] + count_tokens['’'] + count_tokens['（']
+        + count_tokens['）'] + count_tokens['「'] + count_tokens['」']
+        + count_tokens['【'] + count_tokens['】'] + count_tokens['《']
+        + count_tokens['》'] + count_tokens['、'] + count_tokens['/'] 
+        + count_tokens['\\'] + count_tokens['-'] + count_tokens['——']
+        + count_tokens['……']        
+    if lan == 'en':
+        period = count_tokens['.']
+        question = count_tokens['?']
+        exclam = count_tokens['!']
+        comma = count_tokens[',']
+        semi = count_tokens[';']
+        total_punct = (count_tags[""''""] + count_tags['('] + count_tags[')']
+                       + count_tags[','] + count_tags['--'] + count_tags['.']
+                       + count_tags[':'] + count_tags['``'])
+    return period, question, exclam, comma, semi, total_punct
+
+def lex_count(corpus, lan):
+    output = []   
     for filename in corpus:
         combi, tokens, tags = tag(corpus[filename], lan)
-        count = Counter(tags)
-        data = {}
-        for labels in [noun_tags, pronoun_tags, verb_tags, adjective_tags, adverb_tags,
-                       conjunction_tags, auxiliary_tags, content_tags, function_tags]:
-            data.setdefault(labels[0], 0)
-            for item in labels[1:]:
-                data[labels[0]] += count[item]
+        word_data = word_count(corpus[filename], lan)
         period, question, exclam, comma, semi, total_punct = punct_count(corpus[filename], lan)
-        word_count = len(tags) - total_punct
-        output.append([filename, len(tokens), len(set(tokens)), len(set(tokens))/len(tokens), word_count,
-                       mean_word_length(combi, lan), data['content']/word_count, data['function']/word_count,
-                       data['noun']/word_count, data['pronoun']/word_count, data['verb']/word_count,
-                       data['adjective']/word_count, data['adverb']/word_count, data['conjunction']/word_count,
-                       data['auxiliary']/word_count])
-    return pd.DataFrame(output, columns=['docname', 'tokens', 'types', 'TTR', 'words',
+        total_word = len(word_data['words'])
+        output.append([filename, total_word, len(set(word_data['words'])), len(set(word_data['words']))/total_word,
+                       STTR(word_data['words']), mean_word_length(corpus[filename], lan), word_data['content']/total_word,
+                       word_data['function']/total_word, word_data['noun']/total_word, word_data['pronoun']/total_word,
+                       word_data['verb']/total_word, word_data['adjective']/total_word, word_data['adverb']/total_word,
+                       word_data['conjunction']/total_word, word_data['auxiliary']/total_word])
+    return pd.DataFrame(output, columns=['docname', 'tokens', 'types', 'TTR', 'STTR',
                                          'MWL', 'content', 'function',
                                          'noun', 'pronoun', 'verb',
                                          'adjective', 'adverb', 'conjunction',
@@ -150,10 +182,10 @@ def sent_count(corpus, lan):
     output = []
     for filename in corpus:
         sentences = sent_segment(corpus[filename], lan)
-        period, question, exclam, comma, semi, punct = punct_count(corpus[filename], lan)
+        period, question, exclam, comma, semi, total_punct = punct_count(corpus[filename], lan)
         output.append([filename, len(sentences), period/len(sentences), question/len(sentences),
-                       exclam/len(sentences), mean_sent_length(sentences, lan), punct, period/punct,
-                       question/punct, exclam/punct, comma/punct, semi/punct])
+                       exclam/len(sentences), mean_sent_length(sentences, lan), total_punct, period/total_punct,
+                       question/total_punct, exclam/total_punct, comma/total_punct, semi/total_punct])
     return pd.DataFrame(output, columns=['docname', 'sentences', 'statement', 'interrogative',
                                          'exclamatory', 'MSL', 'punctuation', 'period',
                                          'question', 'exclamation', 'comma', 'semicolon'])
@@ -170,15 +202,14 @@ def seg_count(corpus, lan, start, end):
             for i in temp:
                 record.setdefault(filename, {})
                 record[filename].setdefault(i, 0)
-            text = re.sub('([，；：。！？)])([^”’。！？])', r'\1\n\2', corpus[filename])
-            text = re.sub('([^”’])([，；：。！？])([”’])', r'\1\2\3\n', text)
-            text = re.sub('([”’])([，；：。！？])([”’])', r'\1\2\n\3', text)
+            text = re.sub('([，；：。！？])([^”’。！？\…… ）》】」])', r'\1\n\2', corpus[filename])
+            text = re.sub('([，；：。！？])([”’ ）》】」])', r'\1\2\n', text)
             for item in text.split('\n'):
                 combi, tokens, tags = tag(item, lan)
                 period, question, exclam, comma, semi, total_punct = punct_count(item, lan)
-                word_count = len(tokens) - total_punct
+                total_word = len(tokens) - total_punct
                 try:
-                    record[filename][word_count] += 1
+                    record[filename][total_word] += 1
                 except Exception as e:
                     None
         output = pd.DataFrame()
@@ -194,9 +225,8 @@ def sent_segment(text, lan):
     if lan not in ['zh', 'en']:
         raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if lan == 'zh':
-        text = re.sub('([。！？\...... \?])([^”’。！？\......])', r'\1\n\2', text)
-        text = re.sub('([^”’])([。！？\...... \?])([”’])', r'\1\2\3\n', text)
-        text = re.sub('([”’])([。！？\...... \?])([”’])', r'\1\2\n\3', text)
+        text = re.sub('([。！？\……])([^”’。！？\…… ）》】」])', r'\1\n\2', text)
+        text = re.sub('([。！？\……])([”’ ）》】」])', r'\1\2\n', text)
         return text.split('\n')
     if lan == 'en':
         sentences = nltk.sent_tokenize(text)
@@ -281,6 +311,21 @@ def kwic(corpus, keyword, lan, window=4, mode=None, pos=False):
         print('Input not found.')
     return pd.DataFrame(output, columns=['docname', 'from', 'to', 'pre', 'keyword', 'post'])
 
+def load_stopwords(file_direction):
+    file = open(file_direction, encoding='utf-8')
+    text = file.readlines()
+    return text
+
+def word_frequency(tokens, start, end):
+    count = {}
+    for token in tokens:
+        if (token+'\n') not in stopwords:
+            count[token] = count.get(token, 0) + 1
+    output = []
+    for pair in sorted(count.items(), key=lambda count:count[1], reverse=True)[start:end]:
+        output.append([pair[0], pair[1]])
+    return pd.DataFrame(output, columns=['word', 'frequency'])
+
 def word_distribution(tokens, keyword, tile):
     if tile not in [1,2,5,10]:
         raise ValueError('The value of tile should be in [1, 2, 5, 10].')
@@ -288,9 +333,9 @@ def word_distribution(tokens, keyword, tile):
     tiles, times = [], []
     for i in range(0, 10, int(10/tile)):
         end = int(len(tokens) * (i+10/tile) / 10 + 0.5)
-        word_count = Counter(tokens[start:end])
+        total_token = Counter(tokens[start:end])
         tiles.append(str(10*(i+int(10/tile)))+'%')
-        times.append(word_count[keyword])
+        times.append(total_token[keyword])
         start = end
     return tiles, times
 
