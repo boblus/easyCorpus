@@ -7,7 +7,7 @@
 # install
 
 ```python
-pip install easyCorpus
+$ pip install easyCorpus
 ```
 
 # main functions
