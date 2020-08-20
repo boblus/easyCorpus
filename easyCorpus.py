@@ -75,8 +75,9 @@ def mean_word_length(text, lan):
         raise ValueError('Language not supported. This function supports Chinese (\'zh\') and English (\'en\').')
     if lan == 'zh':
         for token in tokens:
-            if token not in ['。', '？', '！', '，', '；', '：', '“', '”', '‘', '’', '（', '）',
-                             '「', '」', '【', '】', '《', '》', '、', '/', '\\', '-', '——', '……']:
+            if token not in ['。', '？', '！', '，', '；', '：', '“', '”', '‘', '’',
+                             '（', '）', '「', '」', '【', '】', '《', '》', '、',
+                             '/', '\\', '-', '——', '……']:
                 cnt = cnt + 1
                 length = length + len(token)
     if lan == 'en':
@@ -227,7 +228,10 @@ def sent_segment(text, lan):
     if lan == 'zh':
         text = re.sub('([。！？\……])([^”’。！？\…… ）》】」])', r'\1\n\2', text)
         text = re.sub('([。！？\……])([”’ ）》】」])', r'\1\2\n', text)
-        return text.split('\n')
+        output = text.split('\n')
+        if '' in output:
+            output.remove('')
+        return output
     if lan == 'en':
         sentences = nltk.sent_tokenize(text)
         return sentences
@@ -383,3 +387,52 @@ def highlight(df, keyword, color):
 
     return df.style.applymap(highlight_val)    
 
+class alignment:
+    
+    def analyze(df, lan):
+        st_col = input('Please type in the name of the source text column:')
+        tt_col = input('Please type in the name of the target text column:')
+        output = []
+        for i in range(len(df)):
+            hic = sent_segment(str(df[tt_col][i]).rstrip(' '), lan)
+            if i == 0 or i == len(df) - 1:
+                index = i+1 if i == 0 else i-1
+                ref = sent_segment(str(df[tt_col][index]).rstrip(' '), lan)
+                if len(hic) > 1:
+                    if hic[0] not in ref and hic[-1] not in ref:
+                        output.append(['one to many', df[st_col][i], df[tt_col][i]])
+                    else:
+                        output.append(['many to many', df[st_col][i], df[tt_col][i]])
+                else:
+                    if str(df[tt_col][i]).rstrip(' ') not in ref:
+                        output.append(['one to one', df[st_col][i], df[tt_col][i]])
+                    elif df[tt_col][i] == df[tt_col][index]:
+                        output.append(['many to one', df[st_col][i], df[tt_col][i]])
+                    else:
+                        output.append(['many to many', df[st_col][i], df[tt_col][i]])
+            else:
+                pre = sent_segment(str(df[tt_col][i-1]).rstrip(' '), lan)
+                post = sent_segment(str(df[tt_col][i+1]).rstrip(' '), lan)
+                if len(hic) > 1:
+                    if hic[0] not in pre and hic[-1] not in post:
+                        output.append(['one to many', df[st_col][i], df[tt_col][i]])
+                    else:
+                        output.append(['many to many', df[st_col][i], df[tt_col][i]])
+                else:
+                    if str(df[tt_col][i]).rstrip(' ') not in pre and str(df[tt_col][i]).rstrip(' ') not in post:
+                        output.append(['one to one', df[st_col][i], df[tt_col][i]])
+                    elif df[tt_col][i] == df[tt_col][i-1] or df[tt_col][i] == df[tt_col][i+1]:
+                        output.append(['many to one', df[st_col][i], df[tt_col][i]])
+                    else:
+                        output.append(['many to many', df[st_col][i], df[tt_col][i]])
+        return pd.DataFrame(output, columns=['type', 'source text', 'target text'])
+    
+    def summary(df, lan):
+        output = []
+        analysis = alignment.analyze(df, lan)
+        output.append([len(df),
+                       len(analysis[analysis['type']=='one to one'])/len(df),
+                       len(analysis[analysis['type']=='one to many'])/len(df),
+                       len(analysis[analysis['type']=='many to one'])/len(df),
+                       len(analysis[analysis['type']=='many to many'])/len(df)])
+        return pd.DataFrame(output, columns=['alignments', 'one to one', 'one to many', 'many to one', 'many to many'])
