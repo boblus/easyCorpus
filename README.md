@@ -1,6 +1,6 @@
 # easyCorpus
 
-[![](https://img.shields.io/badge/PyPI-2.2-orange)](https://pypi.org/project/easyCorpus/)
+[![](https://img.shields.io/badge/PyPI-2.3-orange)](https://pypi.org/project/easyCorpus/)
 
 *easyCorpus* is a python module to process corpus data and perform statistical analysis.
 
