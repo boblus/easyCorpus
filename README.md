@@ -14,12 +14,12 @@ $ pip install easyCorpus
 
 **1. import corpus data (plain text) from a local environment**
 
-* `corporize(direction)`
+* `corporize(directory)`
 
 |  |  |  |
 |----|----|----|
-|**parameters:**|**direction:**|*str*|
-| | |the direction in which the text files (.txt) are stored|
+|**parameters:**|**directory:**|*str*|
+| | |the directory in which the text files (.txt) are stored|
 |**return:**|**corpus**|*dict*|
 
 *Example:*
